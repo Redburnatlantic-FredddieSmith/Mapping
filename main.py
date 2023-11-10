@@ -1,40 +1,37 @@
 import pandas as pd
-import cartopy as ct
 import cartopy.crs as ccrs
 import matplotlib.pyplot as plt
-import pathlib 
+import pathlib
 
-# Read the CSV file into a Pandas DataFrame
 df = pd.read_csv('Raw Data for Greggs Scrape CSV.csv')
 
-def color_gradient(density):
-  """Generates a color based on a given store density."""
+def color_gradient(density, max_density):
+    """Generates a color based on a given store density."""
+    normalized_density = density / max_density
+    red = 1.0 - normalized_density
+    green = 0.0
+    blue = normalized_density
+    return red, green, blue
 
-  # Normalize the store density to a value between 0 and 1
-  normalized_density = density / df['Store_Density'].max()
+# Calculate maximum store density for normalization
+max_density = df['Store_Density'].max()
 
-  # Calculate the red, green, and blue components of the color
-  red = 1.0 - normalized_density
-  green = 0.0
-  blue = normalized_density
+df['red'], df['green'], df['blue'] = zip(*df.apply(lambda row: color_gradient(row['Store_Density'], max_density), axis=1))
 
-# Apply the color gradient function to the store density data
-df['color'] = df['Store_Density'].apply(color_gradient)
+ax = plt.axes(projection=ccrs.PlateCarree())
 
-# Create a GeoAxes object with the specified projection
-ax = ccrs.PlateCarree()
-ax = plt.axes(projection=ax)
+for index, row in df.iterrows():
+    color = (row['red'], row['green'], row['blue'])
 
-# Plot the local authority boundaries and shade based on store density
-for feature in df.iterrows():
-  geometry = feature[1]['GlobalID']
-  color = feature[1]['color']
+    # Use the 'GlobalID' directly as an identifier
+    identifier = row['GlobalID']
+    # Plotting a point with the identifier as text
+    ax.text(row['LONG'], row['LAT'], identifier, transform=ccrs.PlateCarree(), color=color)
 
-  # Plot the local authority boundary with the corresponding color
-  ax.add_geometries([geometry], crs=ccrs.OSGB(), facecolor=color, edgecolor='black')
+# Create a colorbar to represent the store density
+sc = plt.scatter([], [], c=[], cmap='viridis', vmin=0, vmax=max_density)  # Adjust vmin and vmax
+plt.colorbar(sc, label='Store Density')
 
-# Add a legend for the color gradient
-ax.legend(title='Store Density')
+plt.savefig('local_authority_map.png')
 
-# Save the map to a file
-plt.savefig('local_authority_map.png', weakref=False)
+
