@@ -19,7 +19,7 @@ store_density_data = pd.read_csv('Raw Data for Greggs Scrape CSV.csv')
 # Merge store density data with GeoJSON data based on the 'LA' column
 merged_data = pd.merge(geojson_df, store_density_data, how='left', on='LA')
 
-# Create a choropleth map using Plotly Express with dark red to dark blue color scale
+# Create a choropleth map using Plotly Express with dark red to dark blue color scale up to 150k
 fig = px.choropleth_mapbox(
     merged_data,
     geojson=Local_authorities,
