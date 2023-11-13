@@ -14,7 +14,7 @@ geojson_codes = [feature['properties']['LAD21CD'] for feature in Local_authoriti
 geojson_df = pd.DataFrame({'LA': geojson_codes})
 
 # Load store density data from CSV file
-store_density_data = pd.read_csv('Raw Data for Greggs Scrape CSV.csv')
+store_density_data = pd.read_csv('/workspaces/Mapping/CSV Files/Raw Data for Greggs Scrape CSV.csv')
 
 # Merge store density data with GeoJSON data based on the 'LA' column
 merged_data = pd.merge(geojson_df, store_density_data, how='left', on='LA')
@@ -26,9 +26,9 @@ fig = px.choropleth_mapbox(
     locations='LA',
     color='Store_Density',
     featureidkey="properties.LAD21CD",
-    color_continuous_scale="RdBu",  # Use the RdBu color scale
+    color_continuous_scale="redor",  # Use the RdBu color scale
     color_continuous_midpoint=75,  # Set midpoint for transition
-    range_color=[0, 150000],  # Set the expanded range of values
+    range_color=[0, 100000],  # Set the expanded range of values
     mapbox_style="carto-positron",
     center={"lat": 55.09621, "lon": -4.0286298},
     zoom=4.2,
