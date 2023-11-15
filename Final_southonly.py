@@ -19,14 +19,18 @@ store_density_data = pd.read_csv('/workspaces/Mapping/CSV Files/Raw Data for Gre
 # Merge store density data with GeoJSON data based on the 'LA' column
 merged_data = pd.merge(geojson_df, store_density_data, how='left', on='LA')
 
-# Create a choropleth map using Plotly Express with dark red to dark blue color scale up to 150k
+# Define color scale with grey for NaN values
+color_scale = px.colors.sequential.Blues
+color_scale.insert(0, '#808080')  # Add grey as the first color
+
+# Create a choropleth map using Plotly Express
 fig = px.choropleth_mapbox(
     merged_data,
     geojson=Local_authorities,
     locations='LA',
     color='Store_Density',
     featureidkey="properties.LAD21CD",
-    color_continuous_scale="magma",  # Use the RdBu color scale
+    color_continuous_scale=color_scale,  # Use the modified color scale
     color_continuous_midpoint=75,  # Set midpoint for transition
     range_color=[0, 100000],  # Set the expanded range of values
     mapbox_style="carto-positron",
@@ -37,5 +41,6 @@ fig = px.choropleth_mapbox(
 
 # Update layout and save the figure as a PNG file
 fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
-fig.write_image('south_only.png')
+fig.write_image('south_with_grey.png')
+
 
